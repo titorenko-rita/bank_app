@@ -3,59 +3,34 @@ import java.util.Scanner;
 public class BankApp {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        Account account = FileStorage.loadAccount(); // загружаем счёт
 
-        // создаём массив из 10 счетов
-        Account[] accounts = new Account[10];
-        for (int i = 0; i < accounts.length; i++) {
-            accounts[i] = new Account(i, 10000, 6.5); // id = i, баланс 10 000
-        }
+        boolean exit = false;
+        while (!exit) {
+            System.out.println("\n=== Меню ===");
+            System.out.println("1. Просмотр баланса");
+            System.out.println("2. Снять деньги");
+            System.out.println("3. Пополнить счёт");
+            System.out.println("4. Показать историю операций");
+            System.out.println("5. Выход (сохранить данные)");
+            System.out.print("Выберите действие: ");
 
-        while (true) {
-            System.out.print("\nВведите ID (0-9): ");
-            if (!sc.hasNextInt()) {
-                System.out.println("❌ Нужно ввести число!");
-                sc.next(); // очистка ввода
-                continue;
-            }
-            int inputId = sc.nextInt();
-
-            if (inputId < 0 || inputId >= accounts.length) {
-                System.out.println("❌ Некорректный ID! Попробуйте снова.");
-                continue;
-            }
-
-            Account acc = accounts[inputId]; // получаем выбранный счёт
-            boolean exit = false;
-
-            while (!exit) {
-                System.out.println("\n=== Главное меню (счёт " + acc.getId() + ") ===");
-                System.out.println("1. Просмотр баланса");
-                System.out.println("2. Снять деньги");
-                System.out.println("3. Пополнить счёт");
-                System.out.println("4. Выход в меню ID");
-                System.out.print("Выберите действие: ");
-
-                if (!sc.hasNextInt()) {
-                    System.out.println("❌ Нужно ввести число!");
-                    sc.next();
-                    continue;
+            switch (sc.nextInt()) {
+                case 1 -> System.out.println("💰 Баланс: " + account.getBalance() + " руб.");
+                case 2 -> {
+                    System.out.print("Введите сумму для снятия: ");
+                    account.withdraw(sc.nextDouble());
                 }
-
-                int choice = sc.nextInt();
-
-                switch (choice) {
-                    case 1 -> System.out.println("💰 Баланс: " + acc.getBalance() + " руб.");
-                    case 2 -> {
-                        System.out.print("Введите сумму для снятия: ");
-                        acc.withdraw(sc.nextDouble());
-                    }
-                    case 3 -> {
-                        System.out.print("Введите сумму для пополнения: ");
-                        acc.deposit(sc.nextDouble());
-                    }
-                    case 4 -> exit = true;
-                    default -> System.out.println("❌ Неверный выбор!");
+                case 3 -> {
+                    System.out.print("Введите сумму для пополнения: ");
+                    account.deposit(sc.nextDouble());
                 }
+                case 4 -> account.showSummary();
+                case 5 -> {
+                    FileStorage.saveAccount(account);
+                    exit = true;
+                }
+                default -> System.out.println("❌ Неверный выбор!");
             }
         }
     }
